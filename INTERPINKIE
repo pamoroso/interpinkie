@@ -1,0 +1,58 @@
+(DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
+
+(FILECREATED "28-Dec-2024 19:02:28" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;2 2206   
+
+      :EDIT-BY "PA"
+
+      :CHANGES-TO (VARS INTERPINKIECOMS)
+                  (FNS PARSE.FINGER.QUERY QUERY.FINGER.SERVER)
+
+      :PREVIOUS-DATE "28-Dec-2024 18:43:44" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;1)
+
+
+(PRETTYCOMPRINT INTERPINKIECOMS)
+
+(RPAQQ INTERPINKIECOMS ((* A finger client.)
+                        (FNS PARSE.FINGER.QUERY QUERY.FINGER.SERVER)))
+
+
+
+(* A finger client.)
+
+(DEFINEQ
+
+(PARSE.FINGER.QUERY
+  [LAMBDA (QUERY)                                            (* ; "Edited 28-Dec-2024 19:00 by PA")
+
+         (* Checks Finger QUERY and returns a cons
+         (user . host) if valid, NIL otherwise. User is NIL if the username is missing 
+         from QUERY. Assumes QUERY has no leading or trailing whitespace.)
+
+    (LET ((@POS (STRPOS "@" QUERY)))                         (* QUERY must have a minimum length 
+                                                             and not contain more than one @ 
+                                                             character.)
+         (if [AND (GEQ (NCHARS QUERY)
+                       5)
+                  (NULL (STRPOS "@" QUERY (ADD1 @POS]
+             then (CONS (LET [(USER (SUBSTRING QUERY 1 (SUB1 @POS]
+                             (if (GREATERP (NCHARS USER)
+                                        0)
+                                 then USER
+                               else NIL))
+                        (SUBSTRING QUERY (ADD1 @POS)))
+           else NIL])
+
+(QUERY.FINGER.SERVER
+  [LAMBDA (USER HOST STREAM)                                 (* ; "Edited 28-Dec-2024 18:06 by PA")
+
+         (* Queries Finger server HOST about USER and prints the response to STREAM which 
+         defaults to the primary output if not supplied.
+         If USER is NIL requests a list of users at HOST.)
+
+    (ShellCommand (CONCAT "echo %"" (OR USER "")
+                         "%"|nc -C -w 5 " HOST " 79")
+           (OR STREAM (OUTPUT])
+)
+(DECLARE%: DONTCOPY
+  (FILEMAP (NIL (574 2183 (PARSE.FINGER.QUERY 584 . 1691) (QUERY.FINGER.SERVER 1693 . 2181)))))
+STOP
