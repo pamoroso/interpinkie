@@ -1,13 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED "28-Dec-2024 19:02:28" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;2 2206   
+(FILECREATED "28-Dec-2024 19:24:10" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;3 2159   
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (VARS INTERPINKIECOMS)
-                  (FNS PARSE.FINGER.QUERY QUERY.FINGER.SERVER)
+      :CHANGES-TO (FNS QUERY.FINGER.SERVER)
 
-      :PREVIOUS-DATE "28-Dec-2024 18:43:44" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;1)
+      :PREVIOUS-DATE "28-Dec-2024 19:02:28" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;2)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -43,16 +42,16 @@
            else NIL])
 
 (QUERY.FINGER.SERVER
-  [LAMBDA (USER HOST STREAM)                                 (* ; "Edited 28-Dec-2024 18:06 by PA")
+  [LAMBDA (USER HOST STREAM)                                 (* ; "Edited 28-Dec-2024 19:20 by PA")
 
          (* Queries Finger server HOST about USER and prints the response to STREAM which 
          defaults to the primary output if not supplied.
          If USER is NIL requests a list of users at HOST.)
 
     (ShellCommand (CONCAT "echo %"" (OR USER "")
-                         "%"|nc -C -w 5 " HOST " 79")
+                         "%"|nc -C -w 5 " HOST " 79|tr -d %"\r%"")
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (574 2183 (PARSE.FINGER.QUERY 584 . 1691) (QUERY.FINGER.SERVER 1693 . 2181)))))
+  (FILEMAP (NIL (514 2136 (PARSE.FINGER.QUERY 524 . 1631) (QUERY.FINGER.SERVER 1633 . 2134)))))
 STOP
