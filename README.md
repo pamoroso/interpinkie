@@ -34,7 +34,7 @@ If the file is not compiled evaluate instead:
 Once Interpinkie is loaded you can call the following function to run the program.
 
 ```
-(FINGER QUERY NEWINP)
+(PINKIE QUERY NEWINP)
 ```
 
 The program sends to the Finger server `hostname` a `QUERY` of the form `username@hostname` about user `username` and displays the response to the primary output, unless the optional `NEWINP` parameter is non `NIL` in which case the output goes to a separate window.
