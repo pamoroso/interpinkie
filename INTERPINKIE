@@ -1,13 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED "29-Dec-2024 14:30:19" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;4 3498   
+(FILECREATED "29-Dec-2024 18:09:36" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;5 5292   
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (VARS INTERPINKIECOMS)
-                  (FNS END.FINGER.OUTPUT BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM)
+      :CHANGES-TO (FNS BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM END.FINGER.OUTPUT)
 
-      :PREVIOUS-DATE "28-Dec-2024 19:24:10" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;3)
+      :PREVIOUS-DATE "29-Dec-2024 14:30:19" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;4)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -23,32 +22,62 @@
 (DEFINEQ
 
 (BEGIN.FINGER.OUTPUT
-  [LAMBDA (STREAM USER HOST)                                 (* ; "Edited 29-Dec-2024 14:27 by PA")
+  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited 29-Dec-2024 18:07 by PA")
 
-         (* Prepares STREAM for sending the output of a Finger query about USER at HOST.
-         For example, if STREAM is associated with a window the function sets it to 
-         read-write, clear it, and sets a title that reflects the queried user and host.)
+         (* Prepares DESTINATION for sending the response of a Finger query about USER at 
+         HOST. For example, if DESTINATION is associated with a window the function sets 
+         it to read-write, clear it, and sets a title that reflects the queried user and 
+         host.)
 
-    ])
+    [if (TYPENAMEP DESTINATION 'WINDOW)
+        then (LET [(OUTSTREAM (WINDOWPROP DESTINATION 'OUTSTREAM]
+                  (TEXTPROP OUTSTREAM 'READONLY NIL)
+                  (TEDIT.DELETE OUTSTREAM 1 (TEDIT.NCHARS OUTSTREAM))
+                  (WINDOWPROP DESTINATION 'TITLE (CONCAT "Finger " (OR USER "")
+                                                        "@" HOST]
+    DESTINATION])
 
 (CREATE.FINGER.STREAM
-  [LAMBDA (NEWINP)                                           (* ; "Edited 29-Dec-2024 14:23 by PA")
+  [LAMBDA (NEWINP)                                           (* ; "Edited 29-Dec-2024 17:42 by PA")
 
-         (* Creates if necessary and returns a stream suitable for printing Finger output 
-         to the primary output if NEWINP is NIL, to a new separate window otherwise.)
+         (* Creates if necessary an output destination suitable for printing a Finger 
+         response to the primary output if NEWINP is NIL, to a new separate window 
+         otherwise. Returns a stream if NEWINP is NIL
+         (\, otherwise) a window whose (QUOTE OUTSTREAM) property holds a stream to send 
+         the output to.)
 
     (if NEWINP
-        then (OUTPUT)
+        then (LET* ((MENUW (MENUWINDOW (create MENU
+                                              ITEMS _ '((Finger CMDFINGER "Query a Finger server")
+                                                        (Exit CMDEXIT "Quit the program."))
+                                              MENUFONT _ '(MODERN 12)
+                                              TITLE _ "Commands"
+                                              CENTERFLG _ T)
+                                  T))
+                    (OUT (OPENTEXTSTREAM))
+                    [TEDIT.PROCESS (TEDIT OUT NIL NIL '(FONT (TERMINAL 10]
+                    (MAINW (WFROMDS OUT)))
+                   (ATTACHWINDOW MENUW MAINW 'RIGHT 'TOP)
+                   (TEXTPROP OUT 'READONLY 'QUIET)
+                   (WINDOWPROP MAINW 'OUTSTREAM OUT)
+                   (WINDOWPROP MAINW 'TITLE "Finger")
+                   MAINW)
       else (OUTPUT])
 
 (END.FINGER.OUTPUT
-  [LAMBDA (STREAM)                                           (* ; "Edited 29-Dec-2024 14:29 by PA")
+  [LAMBDA (DESTINATION)                                      (* ; "Edited 29-Dec-2024 18:05 by PA")
 
-         (* Cleans up stream after printing the output of a Finger query.
-         For example, if STREAM is associated with a window the function marks it as not 
-         modified and sets it read-only.)
+         (* Cleans up DESTINATION after printing the output of a Finger query.
+         For example, if DESTINATION is a window the function marks it as not modified and 
+         sets it read-only.)
 
-    ])
+    [if (TYPENAMEP DESTINATION 'WINDOW)
+        then (LET [(OUTSTREAM (WINDOWPROP DESTINATION 'OUTSTREAM]
+                                                             (* Clear TEdit's prompt area.)
+                  (TEDIT.PROMPTPRINT OUTSTREAM "" T)
+                  (TEDIT.STREAMCHANGEDP OUTSTREAM T)
+                  (TEXTPROP OUTSTREAM 'READONLY 'QUIET]
+    DESTINATION])
 
 (PARSE.FINGER.QUERY
   [LAMBDA (QUERY)                                            (* ; "Edited 28-Dec-2024 19:00 by PA")
@@ -83,6 +112,6 @@
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (683 3475 (BEGIN.FINGER.OUTPUT 693 . 1110) (CREATE.FINGER.STREAM 1112 . 1502) (
-END.FINGER.OUTPUT 1504 . 1861) (PARSE.FINGER.QUERY 1863 . 2970) (QUERY.FINGER.SERVER 2972 . 3473)))))
+  (FILEMAP (NIL (642 5269 (BEGIN.FINGER.OUTPUT 652 . 1490) (CREATE.FINGER.STREAM 1492 . 2919) (
+END.FINGER.OUTPUT 2921 . 3655) (PARSE.FINGER.QUERY 3657 . 4764) (QUERY.FINGER.SERVER 4766 . 5267)))))
 STOP
