@@ -1,19 +1,19 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED "29-Dec-2024 18:09:36" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;5 5292   
+(FILECREATED "30-Dec-2024 16:56:09" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;9 8017   
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM END.FINGER.OUTPUT)
+      :CHANGES-TO (FNS HANDLE.FINGER.MENU)
 
-      :PREVIOUS-DATE "29-Dec-2024 14:30:19" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;4)
+      :PREVIOUS-DATE "30-Dec-2024 13:54:16" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;8)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
 
 (RPAQQ INTERPINKIECOMS ((* A finger client.)
                         (FNS BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM END.FINGER.OUTPUT 
-                             PARSE.FINGER.QUERY QUERY.FINGER.SERVER)))
+                             HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE QUERY.FINGER.SERVER)))
 
 
 
@@ -22,7 +22,7 @@
 (DEFINEQ
 
 (BEGIN.FINGER.OUTPUT
-  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited 29-Dec-2024 18:07 by PA")
+  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited 30-Dec-2024 10:50 by PA")
 
          (* Prepares DESTINATION for sending the response of a Finger query about USER at 
          HOST. For example, if DESTINATION is associated with a window the function sets 
@@ -30,7 +30,7 @@
          host.)
 
     [if (TYPENAMEP DESTINATION 'WINDOW)
-        then (LET [(OUTSTREAM (WINDOWPROP DESTINATION 'OUTSTREAM]
+        then (LET ((OUTSTREAM (TEXTSTREAM DESTINATION)))
                   (TEXTPROP OUTSTREAM 'READONLY NIL)
                   (TEDIT.DELETE OUTSTREAM 1 (TEDIT.NCHARS OUTSTREAM))
                   (WINDOWPROP DESTINATION 'TITLE (CONCAT "Finger " (OR USER "")
@@ -38,13 +38,12 @@
     DESTINATION])
 
 (CREATE.FINGER.STREAM
-  [LAMBDA (NEWINP)                                           (* ; "Edited 29-Dec-2024 17:42 by PA")
+  [LAMBDA (NEWINP)                                           (* ; "Edited 30-Dec-2024 12:41 by PA")
 
          (* Creates if necessary an output destination suitable for printing a Finger 
          response to the primary output if NEWINP is NIL, to a new separate window 
-         otherwise. Returns a stream if NEWINP is NIL
-         (\, otherwise) a window whose (QUOTE OUTSTREAM) property holds a stream to send 
-         the output to.)
+         otherwise. Returns a stream if NEWINP is NIL, otherwise a window whose OUTSTREAM 
+         property holds a stream to send the output to.)
 
     (if NEWINP
         then (LET* ((MENUW (MENUWINDOW (create MENU
@@ -52,32 +51,57 @@
                                                         (Exit CMDEXIT "Quit the program."))
                                               MENUFONT _ '(MODERN 12)
                                               TITLE _ "Commands"
-                                              CENTERFLG _ T)
+                                              CENTERFLG _ T
+                                              WHENSELECTEDFN _ (FUNCTION HANDLE.FINGER.MENU))
                                   T))
-                    (OUT (OPENTEXTSTREAM))
-                    [TEDIT.PROCESS (TEDIT OUT NIL NIL '(FONT (TERMINAL 10]
+                    [TEDIT.PROCESS (TEDIT NIL NIL NIL '(FONT (TERMINAL 10]
+                    (OUT (TEXTSTREAM TEDIT.PROCESS))
                     (MAINW (WFROMDS OUT)))
                    (ATTACHWINDOW MENUW MAINW 'RIGHT 'TOP)
                    (TEXTPROP OUT 'READONLY 'QUIET)
-                   (WINDOWPROP MAINW 'OUTSTREAM OUT)
                    (WINDOWPROP MAINW 'TITLE "Finger")
                    MAINW)
       else (OUTPUT])
 
 (END.FINGER.OUTPUT
-  [LAMBDA (DESTINATION)                                      (* ; "Edited 29-Dec-2024 18:05 by PA")
+  [LAMBDA (DESTINATION)                                      (* ; "Edited 30-Dec-2024 10:51 by PA")
 
          (* Cleans up DESTINATION after printing the output of a Finger query.
          For example, if DESTINATION is a window the function marks it as not modified and 
          sets it read-only.)
 
     [if (TYPENAMEP DESTINATION 'WINDOW)
-        then (LET [(OUTSTREAM (WINDOWPROP DESTINATION 'OUTSTREAM]
-                                                             (* Clear TEdit's prompt area.)
+        then (LET ((OUTSTREAM (TEXTSTREAM DESTINATION)))     (* Clear TEdit's prompt area.)
                   (TEDIT.PROMPTPRINT OUTSTREAM "" T)
                   (TEDIT.STREAMCHANGEDP OUTSTREAM T)
                   (TEXTPROP OUTSTREAM 'READONLY 'QUIET]
     DESTINATION])
+
+(HANDLE.FINGER.MENU
+  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited 30-Dec-2024 16:54 by PA")
+                                                             (* Handle Finger menu selection.)
+    (LET* ((MENUW (WFROMMENU MENU))
+           (MAINW (MAINWINDOW MENUW)))
+          (if (MEMBER KEY '(MIDDLE RIGHT))
+              then NIL
+            else (SELECTQ (CADR ITEM)
+                     (CMDFINGER (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
+                                       "" T)
+                                (LET [(PARSED.QUERY (PARSE.FINGER.QUERY (PROMPTFORWORD 
+                                                                  "Finger query [username]@hostname:"
+                                                                               NIL NIL (
+                                                                                      GETPROMPTWINDOW
+                                                                                        MAINW]
+                                     (if PARSED.QUERY
+                                         then (LET ((USER (CAR PARSED.QUERY))
+                                                    (HOST (CDR PARSED.QUERY)))
+                                                   (BEGIN.FINGER.OUTPUT MAINW USER HOST)
+                                                   (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM MAINW))
+                                                   (END.FINGER.OUTPUT MAINW))
+                                       else (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
+                                                   "Invalid query." T))))
+                     (CMDEXIT (TEDIT.QUIT (TEXTSTREAM MAINW)))
+                     (T (PROMPTPRINT "Unknown menu item."])
 
 (PARSE.FINGER.QUERY
   [LAMBDA (QUERY)                                            (* ; "Edited 28-Dec-2024 19:00 by PA")
@@ -100,6 +124,24 @@
                         (SUBSTRING QUERY (ADD1 @POS)))
            else NIL])
 
+(PINKIE
+  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited 30-Dec-2024 12:24 by PA")
+
+         (* Performs Finger QUERY and print the response to the primary output if NEWINP 
+         is NIL, to a new window otherwise.)
+
+    (LET ((PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
+         (if PARSED.QUERY
+             then (LET ((USER (CAR PARSED.QUERY))
+                        (HOST (CDR PARSED.QUERY))
+                        (DESTINATION (CREATE.FINGER.STREAM NEWINP)))
+                       (BEGIN.FINGER.OUTPUT DESTINATION USER HOST)
+                       (QUERY.FINGER.SERVER USER HOST (if (TYPENAMEP DESTINATION 'WINDOW)
+                                                          then (TEXTSTREAM DESTINATION)
+                                                        else DESTINATION))
+                       (END.FINGER.OUTPUT DESTINATION))
+           else (PRINTOUT T "Invalid query: " QUERY])
+
 (QUERY.FINGER.SERVER
   [LAMBDA (USER HOST STREAM)                                 (* ; "Edited 28-Dec-2024 19:20 by PA")
 
@@ -112,6 +154,7 @@
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (642 5269 (BEGIN.FINGER.OUTPUT 652 . 1490) (CREATE.FINGER.STREAM 1492 . 2919) (
-END.FINGER.OUTPUT 2921 . 3655) (PARSE.FINGER.QUERY 3657 . 4764) (QUERY.FINGER.SERVER 4766 . 5267)))))
+  (FILEMAP (NIL (628 7994 (BEGIN.FINGER.OUTPUT 638 . 1467) (CREATE.FINGER.STREAM 1469 . 2921) (
+END.FINGER.OUTPUT 2923 . 3591) (HANDLE.FINGER.MENU 3593 . 5392) (PARSE.FINGER.QUERY 5394 . 6501) (
+PINKIE 6503 . 7489) (QUERY.FINGER.SERVER 7491 . 7992)))))
 STOP
