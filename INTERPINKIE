@@ -1,12 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED "30-Dec-2024 16:56:09" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;9 8017   
+(FILECREATED " 1-Jan-2025 17:50:39" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;10 8415   
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS HANDLE.FINGER.MENU)
+      :CHANGES-TO (FNS PARSE.FINGER.QUERY HANDLE.FINGER.MENU PINKIE)
 
-      :PREVIOUS-DATE "30-Dec-2024 13:54:16" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;8)
+      :PREVIOUS-DATE "30-Dec-2024 16:56:09" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;9)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -78,7 +78,8 @@
     DESTINATION])
 
 (HANDLE.FINGER.MENU
-  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited 30-Dec-2024 16:54 by PA")
+  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  1-Jan-2025 17:49 by PA")
+                                                             (* ; "Edited 30-Dec-2024 16:54 by PA")
                                                              (* Handle Finger menu selection.)
     (LET* ((MENUW (WFROMMENU MENU))
            (MAINW (MAINWINDOW MENUW)))
@@ -87,50 +88,54 @@
             else (SELECTQ (CADR ITEM)
                      (CMDFINGER (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
                                        "" T)
-                                (LET [(PARSED.QUERY (PARSE.FINGER.QUERY (PROMPTFORWORD 
-                                                                  "Finger query [username]@hostname:"
-                                                                               NIL NIL (
-                                                                                      GETPROMPTWINDOW
-                                                                                        MAINW]
-                                     (if PARSED.QUERY
-                                         then (LET ((USER (CAR PARSED.QUERY))
-                                                    (HOST (CDR PARSED.QUERY)))
-                                                   (BEGIN.FINGER.OUTPUT MAINW USER HOST)
-                                                   (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM MAINW))
-                                                   (END.FINGER.OUTPUT MAINW))
-                                       else (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
-                                                   "Invalid query." T))))
+                                (LET* ([QUERY (L-CASE (PROMPTFORWORD 
+                                                             "Finger query [username]@hostname:" NIL
+                                                             NIL (GETPROMPTWINDOW MAINW]
+                                       (PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
+                                      (if PARSED.QUERY
+                                          then (LET ((USER (CAR PARSED.QUERY))
+                                                     (HOST (CDR PARSED.QUERY)))
+                                                    (BEGIN.FINGER.OUTPUT MAINW USER HOST)
+                                                    (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM MAINW)
+                                                           )
+                                                    (END.FINGER.OUTPUT MAINW))
+                                        else (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
+                                                    "Invalid query." T))))
                      (CMDEXIT (TEDIT.QUIT (TEXTSTREAM MAINW)))
                      (T (PROMPTPRINT "Unknown menu item."])
 
 (PARSE.FINGER.QUERY
-  [LAMBDA (QUERY)                                            (* ; "Edited 28-Dec-2024 19:00 by PA")
+  [LAMBDA (QUERY)                                            (* ; "Edited  1-Jan-2025 17:41 by PA")
+                                                             (* ; "Edited 28-Dec-2024 19:00 by PA")
 
          (* Checks Finger QUERY and returns a cons
          (user . host) if valid, NIL otherwise. User is NIL if the username is missing 
          from QUERY. Assumes QUERY has no leading or trailing whitespace.)
 
-    (LET ((@POS (STRPOS "@" QUERY)))                         (* QUERY must have a minimum length 
+    (LET ((@POS (OR (STRPOS "@" QUERY)
+                    0)))                                     (* QUERY must have a minimum length 
                                                              and not contain more than one @ 
                                                              character.)
          (if [AND (GEQ (NCHARS QUERY)
-                       5)
+                       10)
                   (NULL (STRPOS "@" QUERY (ADD1 @POS]
              then (CONS (LET [(USER (SUBSTRING QUERY 1 (SUB1 @POS]
-                             (if (GREATERP (NCHARS USER)
-                                        0)
+                             (if (AND (GREATERP @POS 0)
+                                      (GREATERP (NCHARS USER)
+                                             0))
                                  then USER
                                else NIL))
                         (SUBSTRING QUERY (ADD1 @POS)))
            else NIL])
 
 (PINKIE
-  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited 30-Dec-2024 12:24 by PA")
+  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited  1-Jan-2025 17:46 by PA")
+                                                             (* ; "Edited 30-Dec-2024 12:24 by PA")
 
          (* Performs Finger QUERY and print the response to the primary output if NEWINP 
          is NIL, to a new window otherwise.)
 
-    (LET ((PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
+    (LET [(PARSED.QUERY (PARSE.FINGER.QUERY (L-CASE QUERY]
          (if PARSED.QUERY
              then (LET ((USER (CAR PARSED.QUERY))
                         (HOST (CDR PARSED.QUERY))
@@ -154,7 +159,7 @@
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (628 7994 (BEGIN.FINGER.OUTPUT 638 . 1467) (CREATE.FINGER.STREAM 1469 . 2921) (
-END.FINGER.OUTPUT 2923 . 3591) (HANDLE.FINGER.MENU 3593 . 5392) (PARSE.FINGER.QUERY 5394 . 6501) (
-PINKIE 6503 . 7489) (QUERY.FINGER.SERVER 7491 . 7992)))))
+  (FILEMAP (NIL (655 8392 (BEGIN.FINGER.OUTPUT 665 . 1494) (CREATE.FINGER.STREAM 1496 . 2948) (
+END.FINGER.OUTPUT 2950 . 3618) (HANDLE.FINGER.MENU 3620 . 5461) (PARSE.FINGER.QUERY 5463 . 6785) (
+PINKIE 6787 . 7887) (QUERY.FINGER.SERVER 7889 . 8390)))))
 STOP
