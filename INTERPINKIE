@@ -1,10 +1,10 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED " 1-Jan-2025 17:50:39" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;10 8415   
+(FILECREATED " 1-Jan-2025 18:11:41" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;11 8980   
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS PARSE.FINGER.QUERY HANDLE.FINGER.MENU PINKIE)
+      :CHANGES-TO (FNS BEGIN.FINGER.OUTPUT HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE)
 
       :PREVIOUS-DATE "30-Dec-2024 16:56:09" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;9)
 
@@ -22,7 +22,8 @@
 (DEFINEQ
 
 (BEGIN.FINGER.OUTPUT
-  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited 30-Dec-2024 10:50 by PA")
+  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited  1-Jan-2025 18:10 by PA")
+                                                             (* ; "Edited 30-Dec-2024 10:50 by PA")
 
          (* Prepares DESTINATION for sending the response of a Finger query about USER at 
          HOST. For example, if DESTINATION is associated with a window the function sets 
@@ -30,7 +31,10 @@
          host.)
 
     [if (TYPENAMEP DESTINATION 'WINDOW)
-        then (LET ((OUTSTREAM (TEXTSTREAM DESTINATION)))
+        then (LET ((OUTSTREAM (TEXTSTREAM DESTINATION)))     (* Save query as input suggestion for 
+                                                             the Finger menu command.)
+                  (WINDOWPROP DESTINATION 'FINGERQUERY (CONCAT (OR USER "")
+                                                              "@" HOST))
                   (TEXTPROP OUTSTREAM 'READONLY NIL)
                   (TEDIT.DELETE OUTSTREAM 1 (TEDIT.NCHARS OUTSTREAM))
                   (WINDOWPROP DESTINATION 'TITLE (CONCAT "Finger " (OR USER "")
@@ -78,7 +82,7 @@
     DESTINATION])
 
 (HANDLE.FINGER.MENU
-  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  1-Jan-2025 17:49 by PA")
+  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  1-Jan-2025 18:07 by PA")
                                                              (* ; "Edited 30-Dec-2024 16:54 by PA")
                                                              (* Handle Finger menu selection.)
     (LET* ((MENUW (WFROMMENU MENU))
@@ -89,8 +93,10 @@
                      (CMDFINGER (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
                                        "" T)
                                 (LET* ([QUERY (L-CASE (PROMPTFORWORD 
-                                                             "Finger query [username]@hostname:" NIL
-                                                             NIL (GETPROMPTWINDOW MAINW]
+                                                             "Finger query [username]@hostname:"
+                                                             (WINDOWPROP MAINW 'FINGERQUERY)
+                                                             NIL
+                                                             (GETPROMPTWINDOW MAINW]
                                        (PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
                                       (if PARSED.QUERY
                                           then (LET ((USER (CAR PARSED.QUERY))
@@ -159,7 +165,7 @@
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (655 8392 (BEGIN.FINGER.OUTPUT 665 . 1494) (CREATE.FINGER.STREAM 1496 . 2948) (
-END.FINGER.OUTPUT 2950 . 3618) (HANDLE.FINGER.MENU 3620 . 5461) (PARSE.FINGER.QUERY 5463 . 6785) (
-PINKIE 6787 . 7887) (QUERY.FINGER.SERVER 7889 . 8390)))))
+  (FILEMAP (NIL (675 8957 (BEGIN.FINGER.OUTPUT 685 . 1909) (CREATE.FINGER.STREAM 1911 . 3363) (
+END.FINGER.OUTPUT 3365 . 4033) (HANDLE.FINGER.MENU 4035 . 6026) (PARSE.FINGER.QUERY 6028 . 7350) (
+PINKIE 7352 . 8452) (QUERY.FINGER.SERVER 8454 . 8955)))))
 STOP
