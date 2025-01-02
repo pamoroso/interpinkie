@@ -2,6 +2,8 @@
 
 Interpinkie is a Finger client for the Medley environment written in Interlisp. It supports a subset of the queries specified by the Finger protocol and can display the output on the primary output or in a separate window.
 
+![Main window of the Interpinkie Interlisp Finger client](https://raw.githubusercontent.com/pamoroso/interpinkie/main/interpinkie.png)
+
 
 ## Installation
 
@@ -41,7 +43,7 @@ The program sends to the Finger server `hostname` a `QUERY` of the form `usernam
 
 If `NEWINP` is non `NIL` Interpinkie prompts to create a window to display the scrollable output. The window has a prompt area attached to the top side and a menu to the right side. The prompt area serves for requesting input and displaying error or status messages, the menu contains the following items:
 
-* `Finger`: performs a Finger query entered as input
+* `Finger`: runs a Finger query entered as input
 * `Exit`: exits the program
 
 
