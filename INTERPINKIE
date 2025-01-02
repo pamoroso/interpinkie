@@ -1,12 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED " 1-Jan-2025 18:11:41" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;11 8980   
+(FILECREATED " 2-Jan-2025 17:29:00" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;12 9044   
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS BEGIN.FINGER.OUTPUT HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE)
+      :CHANGES-TO (FNS QUERY.FINGER.SERVER)
 
-      :PREVIOUS-DATE "30-Dec-2024 16:56:09" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;9)
+      :PREVIOUS-DATE " 1-Jan-2025 18:11:41" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;11)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -154,18 +154,19 @@
            else (PRINTOUT T "Invalid query: " QUERY])
 
 (QUERY.FINGER.SERVER
-  [LAMBDA (USER HOST STREAM)                                 (* ; "Edited 28-Dec-2024 19:20 by PA")
+  [LAMBDA (USER HOST STREAM)                                 (* ; "Edited  2-Jan-2025 17:28 by PA")
+                                                             (* ; "Edited 28-Dec-2024 19:20 by PA")
 
          (* Queries Finger server HOST about USER and prints the response to STREAM which 
          defaults to the primary output if not supplied.
          If USER is NIL requests a list of users at HOST.)
 
     (ShellCommand (CONCAT "echo %"" (OR USER "")
-                         "%"|nc -C -w 5 " HOST " 79|tr -d %"\r%"")
+                         "%"|nc -C -w 3 " HOST " 79|tr -d %"\r%"")
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (675 8957 (BEGIN.FINGER.OUTPUT 685 . 1909) (CREATE.FINGER.STREAM 1911 . 3363) (
-END.FINGER.OUTPUT 3365 . 4033) (HANDLE.FINGER.MENU 4035 . 6026) (PARSE.FINGER.QUERY 6028 . 7350) (
-PINKIE 7352 . 8452) (QUERY.FINGER.SERVER 8454 . 8955)))))
+  (FILEMAP (NIL (631 9021 (BEGIN.FINGER.OUTPUT 641 . 1865) (CREATE.FINGER.STREAM 1867 . 3319) (
+END.FINGER.OUTPUT 3321 . 3989) (HANDLE.FINGER.MENU 3991 . 5982) (PARSE.FINGER.QUERY 5984 . 7306) (
+PINKIE 7308 . 8408) (QUERY.FINGER.SERVER 8410 . 9019)))))
 STOP
