@@ -49,7 +49,8 @@ If `NEWINP` is non `NIL` Interpinkie prompts to create a window to display the s
 
 ## Learn more
 
-- [Medley Interlisp](https://interlisp.org)
+* [Interpinkie project updates](https://journal.paoloamoroso.com/tag:Interpinkie)
+* [Medley Interlisp](https://interlisp.org)
 
 
 ## Author
