@@ -1,34 +1,38 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED " 3-Jan-2025 20:48:14" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;13 9156   
+(FILECREATED " 5-Jan-2025 16:54:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;14 10084  
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS QUERY.FINGER.SERVER)
+      :CHANGES-TO (VARS INTERPINKIECOMS)
+                  (FNS BEGIN.FINGER.OUTPUT END.FINGER.OUTPUT HANDLE.FINGER.MENU)
 
-      :PREVIOUS-DATE " 2-Jan-2025 17:29:00" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;12)
+      :PREVIOUS-DATE " 3-Jan-2025 20:48:14" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;13)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
 
-(RPAQQ INTERPINKIECOMS ((* A finger client.)
+(RPAQQ INTERPINKIECOMS ((* A finger client. Requires the nc and tr Unix programs to be installed on 
+                           the host operating system.)
                         (FNS BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM END.FINGER.OUTPUT 
                              HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE QUERY.FINGER.SERVER)))
 
 
 
-(* A finger client.)
+(* A finger client. Requires the nc and tr Unix programs to be installed on the host operating system.
+)
 
 (DEFINEQ
 
 (BEGIN.FINGER.OUTPUT
-  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited  1-Jan-2025 18:10 by PA")
+  [LAMBDA (DESTINATION USER HOST)                            (* ; "Edited  5-Jan-2025 16:49 by PA")
+                                                             (* ; "Edited  1-Jan-2025 18:10 by PA")
                                                              (* ; "Edited 30-Dec-2024 10:50 by PA")
 
          (* Prepares DESTINATION for sending the response of a Finger query about USER at 
          HOST. For example, if DESTINATION is associated with a window the function sets 
          it to read-write, clear it, and sets a title that reflects the queried user and 
-         host.)
+         host. In CLOS this function would be a :BEFORE method of QUERY.FINGER.SERVER.)
 
     [if (TYPENAMEP DESTINATION 'WINDOW)
         then (LET ((OUTSTREAM (TEXTSTREAM DESTINATION)))     (* Save query as input suggestion for 
@@ -68,47 +72,56 @@
       else (OUTPUT])
 
 (END.FINGER.OUTPUT
-  [LAMBDA (DESTINATION)                                      (* ; "Edited 30-Dec-2024 10:51 by PA")
+  [LAMBDA (DESTINATION)                                      (* ; "Edited  5-Jan-2025 16:52 by PA")
+                                                             (* ; "Edited 30-Dec-2024 10:51 by PA")
 
          (* Cleans up DESTINATION after printing the output of a Finger query.
          For example, if DESTINATION is a window the function marks it as not modified and 
-         sets it read-only.)
+         sets it read-only. In CLOS this function would be an :AFTER method of 
+         QUERY.FINGER.SERVER.)
 
     [if (TYPENAMEP DESTINATION 'WINDOW)
         then (LET ((OUTSTREAM (TEXTSTREAM DESTINATION)))     (* Clear TEdit's prompt area.)
                   (TEDIT.PROMPTPRINT OUTSTREAM "" T)
+
+         (* Mark buffer as not changed so the user is not prompted whether to save when 
+         quitting the program.)
+
                   (TEDIT.STREAMCHANGEDP OUTSTREAM T)
                   (TEXTPROP OUTSTREAM 'READONLY 'QUIET]
     DESTINATION])
 
 (HANDLE.FINGER.MENU
-  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  1-Jan-2025 18:07 by PA")
+  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  5-Jan-2025 16:44 by PA")
+                                                             (* ; "Edited  1-Jan-2025 18:07 by PA")
                                                              (* ; "Edited 30-Dec-2024 16:54 by PA")
                                                              (* Handle Finger menu selection.)
-    (LET* ((MENUW (WFROMMENU MENU))
-           (MAINW (MAINWINDOW MENUW)))
-          (if (MEMBER KEY '(MIDDLE RIGHT))
-              then NIL
-            else (SELECTQ (CADR ITEM)
-                     (CMDFINGER (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
-                                       "" T)
-                                (LET* ([QUERY (L-CASE (PROMPTFORWORD 
-                                                             "Finger query [username]@hostname:"
-                                                             (WINDOWPROP MAINW 'FINGERQUERY)
-                                                             NIL
-                                                             (GETPROMPTWINDOW MAINW]
-                                       (PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
-                                      (if PARSED.QUERY
-                                          then (LET ((USER (CAR PARSED.QUERY))
-                                                     (HOST (CDR PARSED.QUERY)))
-                                                    (BEGIN.FINGER.OUTPUT MAINW USER HOST)
-                                                    (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM MAINW)
-                                                           )
-                                                    (END.FINGER.OUTPUT MAINW))
-                                        else (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
-                                                    "Invalid query." T))))
-                     (CMDEXIT (TEDIT.QUIT (TEXTSTREAM MAINW)))
-                     (T (PROMPTPRINT "Unknown menu item."])
+    (LET [(MAINW (MAINWINDOW (WFROMMENU MENU]
+         (if (MEMBER KEY '(MIDDLE RIGHT))
+             then NIL
+           else (SELECTQ (CADR ITEM)
+                    (CMDFINGER (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
+                                      "" T)
+
+         (* PROMPTFORWORD returns a string with no leading or trailing whitespace, so 
+         PARSE.FINGER.QUERY needs not check for this.)
+
+                               (LET* ([QUERY (L-CASE (PROMPTFORWORD 
+                                                            "Finger query [username]@hostname:"
+                                                            (WINDOWPROP MAINW 'FINGERQUERY)
+                                                            NIL
+                                                            (GETPROMPTWINDOW MAINW]
+                                      (PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
+                                     (if PARSED.QUERY
+                                         then (LET ((USER (CAR PARSED.QUERY))
+                                                    (HOST (CDR PARSED.QUERY)))
+                                                   (BEGIN.FINGER.OUTPUT MAINW USER HOST)
+                                                   (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM MAINW))
+                                                   (END.FINGER.OUTPUT MAINW))
+                                       else (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
+                                                   "Invalid query." T))))
+                    (CMDEXIT (TEDIT.QUIT (TEXTSTREAM MAINW)))
+                    (T (PROMPTPRINT "Unknown menu item."])
 
 (PARSE.FINGER.QUERY
   [LAMBDA (QUERY)                                            (* ; "Edited  1-Jan-2025 17:41 by PA")
@@ -167,7 +180,7 @@
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (631 9133 (BEGIN.FINGER.OUTPUT 641 . 1865) (CREATE.FINGER.STREAM 1867 . 3319) (
-END.FINGER.OUTPUT 3321 . 3989) (HANDLE.FINGER.MENU 3991 . 5982) (PARSE.FINGER.QUERY 5984 . 7306) (
-PINKIE 7308 . 8408) (QUERY.FINGER.SERVER 8410 . 9131)))))
+  (FILEMAP (NIL (904 10061 (BEGIN.FINGER.OUTPUT 914 . 2318) (CREATE.FINGER.STREAM 2320 . 3772) (
+END.FINGER.OUTPUT 3774 . 4767) (HANDLE.FINGER.MENU 4769 . 6910) (PARSE.FINGER.QUERY 6912 . 8234) (
+PINKIE 8236 . 9336) (QUERY.FINGER.SERVER 9338 . 10059)))))
 STOP
