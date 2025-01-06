@@ -1,13 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED " 5-Jan-2025 16:54:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;14 10084  
+(FILECREATED " 6-Jan-2025 11:40:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;15 10487  
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (VARS INTERPINKIECOMS)
-                  (FNS BEGIN.FINGER.OUTPUT END.FINGER.OUTPUT HANDLE.FINGER.MENU)
+      :CHANGES-TO (FNS HANDLE.FINGER.MENU PINKIE)
 
-      :PREVIOUS-DATE " 3-Jan-2025 20:48:14" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;13)
+      :PREVIOUS-DATE " 5-Jan-2025 16:54:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;14)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -92,7 +91,7 @@
     DESTINATION])
 
 (HANDLE.FINGER.MENU
-  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  5-Jan-2025 16:44 by PA")
+  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  6-Jan-2025 11:38 by PA")
                                                              (* ; "Edited  1-Jan-2025 18:07 by PA")
                                                              (* ; "Edited 30-Dec-2024 16:54 by PA")
                                                              (* Handle Finger menu selection.)
@@ -115,9 +114,12 @@
                                      (if PARSED.QUERY
                                          then (LET ((USER (CAR PARSED.QUERY))
                                                     (HOST (CDR PARSED.QUERY)))
-                                                   (BEGIN.FINGER.OUTPUT MAINW USER HOST)
-                                                   (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM MAINW))
-                                                   (END.FINGER.OUTPUT MAINW))
+                                                   (RESETLST
+                                                       (RESETSAVE (CURSOR WAITINGCURSOR))
+                                                       (BEGIN.FINGER.OUTPUT MAINW USER HOST)
+                                                       (QUERY.FINGER.SERVER USER HOST (TEXTSTREAM
+                                                                                       MAINW))
+                                                       (END.FINGER.OUTPUT MAINW)))
                                        else (TEDIT.PROMPTPRINT (TEXTSTREAM MAINW)
                                                    "Invalid query." T))))
                     (CMDEXIT (TEDIT.QUIT (TEXTSTREAM MAINW)))
@@ -148,7 +150,8 @@
            else NIL])
 
 (PINKIE
-  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited  1-Jan-2025 17:46 by PA")
+  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited  6-Jan-2025 11:37 by PA")
+                                                             (* ; "Edited  1-Jan-2025 17:46 by PA")
                                                              (* ; "Edited 30-Dec-2024 12:24 by PA")
 
          (* Performs Finger QUERY and print the response to the primary output if NEWINP 
@@ -159,11 +162,13 @@
              then (LET ((USER (CAR PARSED.QUERY))
                         (HOST (CDR PARSED.QUERY))
                         (DESTINATION (CREATE.FINGER.STREAM NEWINP)))
-                       (BEGIN.FINGER.OUTPUT DESTINATION USER HOST)
-                       (QUERY.FINGER.SERVER USER HOST (if (TYPENAMEP DESTINATION 'WINDOW)
-                                                          then (TEXTSTREAM DESTINATION)
-                                                        else DESTINATION))
-                       (END.FINGER.OUTPUT DESTINATION))
+                       (RESETLST
+                           (RESETSAVE (CURSOR WAITINGCURSOR))
+                           (BEGIN.FINGER.OUTPUT DESTINATION USER HOST)
+                           (QUERY.FINGER.SERVER USER HOST (if (TYPENAMEP DESTINATION 'WINDOW)
+                                                              then (TEXTSTREAM DESTINATION)
+                                                            else DESTINATION))
+                           (END.FINGER.OUTPUT DESTINATION)))
            else (PRINTOUT T "Invalid query: " QUERY])
 
 (QUERY.FINGER.SERVER
@@ -180,7 +185,7 @@
            (OR STREAM (OUTPUT])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (904 10061 (BEGIN.FINGER.OUTPUT 914 . 2318) (CREATE.FINGER.STREAM 2320 . 3772) (
-END.FINGER.OUTPUT 3774 . 4767) (HANDLE.FINGER.MENU 4769 . 6910) (PARSE.FINGER.QUERY 6912 . 8234) (
-PINKIE 8236 . 9336) (QUERY.FINGER.SERVER 9338 . 10059)))))
+  (FILEMAP (NIL (832 10464 (BEGIN.FINGER.OUTPUT 842 . 2246) (CREATE.FINGER.STREAM 2248 . 3700) (
+END.FINGER.OUTPUT 3702 . 4695) (HANDLE.FINGER.MENU 4697 . 7089) (PARSE.FINGER.QUERY 7091 . 8413) (
+PINKIE 8415 . 9739) (QUERY.FINGER.SERVER 9741 . 10462)))))
 STOP
