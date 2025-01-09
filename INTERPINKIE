@@ -1,20 +1,22 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED " 6-Jan-2025 11:40:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;15 10487  
+(FILECREATED " 9-Jan-2025 17:20:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;16 11356  
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS HANDLE.FINGER.MENU PINKIE)
+      :CHANGES-TO (FNS HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE VALID.FINGER.CHARS.P)
+                  (VARS INTERPINKIECOMS)
 
-      :PREVIOUS-DATE " 5-Jan-2025 16:54:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;14)
+      :PREVIOUS-DATE " 6-Jan-2025 11:40:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;15)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
 
-(RPAQQ INTERPINKIECOMS ((* A finger client. Requires the nc and tr Unix programs to be installed on 
-                           the host operating system.)
-                        (FNS BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM END.FINGER.OUTPUT 
-                             HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE QUERY.FINGER.SERVER)))
+(RPAQQ INTERPINKIECOMS
+       ((* A finger client. Requires the nc and tr Unix programs to be installed on the host 
+           operating system.)
+        (FNS BEGIN.FINGER.OUTPUT CREATE.FINGER.STREAM END.FINGER.OUTPUT HANDLE.FINGER.MENU 
+             PARSE.FINGER.QUERY PINKIE QUERY.FINGER.SERVER VALID.FINGER.CHARS.P)))
 
 
 
@@ -91,7 +93,8 @@
     DESTINATION])
 
 (HANDLE.FINGER.MENU
-  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  6-Jan-2025 11:38 by PA")
+  [LAMBDA (ITEM MENU KEY)                                    (* ; "Edited  9-Jan-2025 17:17 by PA")
+                                                             (* ; "Edited  6-Jan-2025 11:38 by PA")
                                                              (* ; "Edited  1-Jan-2025 18:07 by PA")
                                                              (* ; "Edited 30-Dec-2024 16:54 by PA")
                                                              (* Handle Finger menu selection.)
@@ -105,11 +108,10 @@
          (* PROMPTFORWORD returns a string with no leading or trailing whitespace, so 
          PARSE.FINGER.QUERY needs not check for this.)
 
-                               (LET* ([QUERY (L-CASE (PROMPTFORWORD 
-                                                            "Finger query [username]@hostname:"
-                                                            (WINDOWPROP MAINW 'FINGERQUERY)
-                                                            NIL
-                                                            (GETPROMPTWINDOW MAINW]
+                               (LET* ((QUERY (PROMPTFORWORD "Finger query [username]@hostname:"
+                                                    (WINDOWPROP MAINW 'FINGERQUERY)
+                                                    NIL
+                                                    (GETPROMPTWINDOW MAINW)))
                                       (PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
                                      (if PARSED.QUERY
                                          then (LET ((USER (CAR PARSED.QUERY))
@@ -126,38 +128,45 @@
                     (T (PROMPTPRINT "Unknown menu item."])
 
 (PARSE.FINGER.QUERY
-  [LAMBDA (QUERY)                                            (* ; "Edited  1-Jan-2025 17:41 by PA")
+  [LAMBDA (RAW.QUERY)                                        (* ; "Edited  9-Jan-2025 17:15 by PA")
+                                                             (* ; "Edited  1-Jan-2025 17:41 by PA")
                                                              (* ; "Edited 28-Dec-2024 19:00 by PA")
 
-         (* Checks Finger QUERY and returns a cons
-         (user . host) if valid, NIL otherwise. User is NIL if the username is missing 
-         from QUERY. Assumes QUERY has no leading or trailing whitespace.)
+         (* Checks RAW.QUERY and returns a cons of lowercase strings
+         (user . host) if it is a valid Finger query #.(SEDIT::MAKE-BROKEN-ATOM ",") NIL 
+         otherwise. User is NIL if the username is missing from RAW.QUERY.
+         Assumes RAW.QUERY has no leading or trailing whitespace.)
 
-    (LET ((@POS (OR (STRPOS "@" QUERY)
-                    0)))                                     (* QUERY must have a minimum length 
-                                                             and not contain more than one @ 
-                                                             character.)
-         (if [AND (GEQ (NCHARS QUERY)
-                       10)
-                  (NULL (STRPOS "@" QUERY (ADD1 @POS]
-             then (CONS (LET [(USER (SUBSTRING QUERY 1 (SUB1 @POS]
-                             (if (AND (GREATERP @POS 0)
-                                      (GREATERP (NCHARS USER)
-                                             0))
-                                 then USER
-                               else NIL))
-                        (SUBSTRING QUERY (ADD1 @POS)))
-           else NIL])
+    (LET* ((QUERY (L-CASE (MKSTRING RAW.QUERY)))
+           (@POS (OR (STRPOS "@" QUERY)
+                     0)))
+
+         (* QUERY must have a minimum length, contain only valid characters, and not 
+         contain more than one @ character.)
+
+          (if [AND (GEQ (NCHARS QUERY)
+                        10)
+                   (VALID.FINGER.CHARS.P QUERY)
+                   (NULL (STRPOS "@" QUERY (ADD1 @POS]
+              then (CONS (LET [(USER (SUBSTRING QUERY 1 (SUB1 @POS]
+                              (if (AND (GREATERP @POS 0)
+                                       (GREATERP (NCHARS USER)
+                                              0))
+                                  then USER
+                                else NIL))
+                         (SUBSTRING QUERY (ADD1 @POS)))
+            else NIL])
 
 (PINKIE
-  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited  6-Jan-2025 11:37 by PA")
+  [LAMBDA (QUERY NEWINP)                                     (* ; "Edited  9-Jan-2025 17:17 by PA")
+                                                             (* ; "Edited  6-Jan-2025 11:37 by PA")
                                                              (* ; "Edited  1-Jan-2025 17:46 by PA")
                                                              (* ; "Edited 30-Dec-2024 12:24 by PA")
 
          (* Performs Finger QUERY and print the response to the primary output if NEWINP 
          is NIL, to a new window otherwise.)
 
-    (LET [(PARSED.QUERY (PARSE.FINGER.QUERY (L-CASE QUERY]
+    (LET ((PARSED.QUERY (PARSE.FINGER.QUERY QUERY)))
          (if PARSED.QUERY
              then (LET ((USER (CAR PARSED.QUERY))
                         (HOST (CDR PARSED.QUERY))
@@ -183,9 +192,19 @@
     (ShellCommand (CONCAT "echo %"" (OR USER "")
                          "%"|nc -C -w 3 " HOST " finger|tr -d %"\r%"")
            (OR STREAM (OUTPUT])
+
+(VALID.FINGER.CHARS.P
+  [LAMBDA (QUERY)                                            (* ; "Edited  9-Jan-2025 17:09 by PA")
+
+         (* Returns the QUERY string if it contains only valid characters for a Finger 
+         query, NIL otherwise.)
+
+    (NOT (STRPOSL '(@ %. a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J K L
+                      M N O P Q R S T U V W X Y Z |0| |1| |2| |3| |4| |5| |6| |7| |8| |9|)
+                QUERY NIL T])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (832 10464 (BEGIN.FINGER.OUTPUT 842 . 2246) (CREATE.FINGER.STREAM 2248 . 3700) (
-END.FINGER.OUTPUT 3702 . 4695) (HANDLE.FINGER.MENU 4697 . 7089) (PARSE.FINGER.QUERY 7091 . 8413) (
-PINKIE 8415 . 9739) (QUERY.FINGER.SERVER 9741 . 10462)))))
+  (FILEMAP (NIL (893 11333 (BEGIN.FINGER.OUTPUT 903 . 2307) (CREATE.FINGER.STREAM 2309 . 3761) (
+END.FINGER.OUTPUT 3763 . 4756) (HANDLE.FINGER.MENU 4758 . 7167) (PARSE.FINGER.QUERY 7169 . 8693) (
+PINKIE 8695 . 10121) (QUERY.FINGER.SERVER 10123 . 10844) (VALID.FINGER.CHARS.P 10846 . 11331)))))
 STOP
