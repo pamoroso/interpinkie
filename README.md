@@ -7,7 +7,7 @@ Interpinkie is a Finger client for the Medley environment written in Interlisp. 
 
 ## System requirements
 
-Interpinkie runs under Medley Interlisp and requires a host operating system that provides the Unix programs [Netcat](https://en.wikipedia.org/wiki/Netcat) and [`tr`](https://en.wikipedia.org/wiki/Tr_(Unix)), which should be installed before running Interpinkie. For example, Linux and other POSIX-like operating systems come with these programs preinstalled or available for installation.
+Interpinkie runs under Medley Interlisp and requires Linux with the Unix programs [Netcat](https://en.wikipedia.org/wiki/Netcat) and [`tr`](https://en.wikipedia.org/wiki/Tr_(Unix)) installed. Interpinkie may run unmodified on other Unix derivatives but some are known not to work with it such as macOS and FreeBSD.
 
 
 ## Installation
