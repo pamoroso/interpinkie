@@ -1,13 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED " 9-Jan-2025 17:20:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;16 11356  
+(FILECREATED "14-Jan-2025 16:42:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;17 11729  
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS HANDLE.FINGER.MENU PARSE.FINGER.QUERY PINKIE VALID.FINGER.CHARS.P)
-                  (VARS INTERPINKIECOMS)
+      :CHANGES-TO (FNS CREATE.FINGER.STREAM)
 
-      :PREVIOUS-DATE " 6-Jan-2025 11:40:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;15)
+      :PREVIOUS-DATE " 9-Jan-2025 17:20:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;16)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -47,12 +46,18 @@
     DESTINATION])
 
 (CREATE.FINGER.STREAM
-  [LAMBDA (NEWINP)                                           (* ; "Edited 30-Dec-2024 12:41 by PA")
+  [LAMBDA (NEWINP)                                           (* ; "Edited 14-Jan-2025 16:41 by PA")
+                                                             (* ; "Edited 30-Dec-2024 12:41 by PA")
 
          (* Creates if necessary an output destination suitable for printing a Finger 
          response to the primary output if NEWINP is NIL, to a new separate window 
          otherwise. Returns a stream if NEWINP is NIL, otherwise a window whose OUTSTREAM 
          property holds a stream to send the output to.)
+                                                             (*)
+
+         (* The Terminal font handles ASCII better than Gacha as it has actual underscore 
+         and caret. Command history is not necessary for non interactive sessions like 
+         this.)
 
     (if NEWINP
         then (LET* ((MENUW (MENUWINDOW (create MENU
@@ -63,7 +68,8 @@
                                               CENTERFLG _ T
                                               WHENSELECTEDFN _ (FUNCTION HANDLE.FINGER.MENU))
                                   T))
-                    [TEDIT.PROCESS (TEDIT NIL NIL NIL '(FONT (TERMINAL 10]
+                    [TEDIT.PROCESS (TEDIT NIL NIL NIL '(FONT (TERMINAL 10)
+                                                             HISTORY OFF]
                     (OUT (TEXTSTREAM TEDIT.PROCESS))
                     (MAINW (WFROMDS OUT)))
                    (ATTACHWINDOW MENUW MAINW 'RIGHT 'TOP)
@@ -204,7 +210,7 @@
                 QUERY NIL T])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (893 11333 (BEGIN.FINGER.OUTPUT 903 . 2307) (CREATE.FINGER.STREAM 2309 . 3761) (
-END.FINGER.OUTPUT 3763 . 4756) (HANDLE.FINGER.MENU 4758 . 7167) (PARSE.FINGER.QUERY 7169 . 8693) (
-PINKIE 8695 . 10121) (QUERY.FINGER.SERVER 10123 . 10844) (VALID.FINGER.CHARS.P 10846 . 11331)))))
+  (FILEMAP (NIL (807 11706 (BEGIN.FINGER.OUTPUT 817 . 2221) (CREATE.FINGER.STREAM 2223 . 4134) (
+END.FINGER.OUTPUT 4136 . 5129) (HANDLE.FINGER.MENU 5131 . 7540) (PARSE.FINGER.QUERY 7542 . 9066) (
+PINKIE 9068 . 10494) (QUERY.FINGER.SERVER 10496 . 11217) (VALID.FINGER.CHARS.P 11219 . 11704)))))
 STOP
