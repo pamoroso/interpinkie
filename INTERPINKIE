@@ -1,12 +1,12 @@
 (DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "INTERLISP" BASE 10)
 
-(FILECREATED "14-Jan-2025 16:42:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;17 11729  
+(FILECREATED " 7-Feb-2025 18:08:54" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;18 11803  
 
       :EDIT-BY "PA"
 
-      :CHANGES-TO (FNS CREATE.FINGER.STREAM)
+      :CHANGES-TO (FNS PARSE.FINGER.QUERY)
 
-      :PREVIOUS-DATE " 9-Jan-2025 17:20:17" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;16)
+      :PREVIOUS-DATE "14-Jan-2025 16:42:58" {DSK}<home>paolo>il>interpinkie>INTERPINKIE.;17)
 
 
 (PRETTYCOMPRINT INTERPINKIECOMS)
@@ -134,13 +134,14 @@
                     (T (PROMPTPRINT "Unknown menu item."])
 
 (PARSE.FINGER.QUERY
-  [LAMBDA (RAW.QUERY)                                        (* ; "Edited  9-Jan-2025 17:15 by PA")
+  [LAMBDA (RAW.QUERY)                                        (* ; "Edited  7-Feb-2025 18:08 by PA")
+                                                             (* ; "Edited  9-Jan-2025 17:15 by PA")
                                                              (* ; "Edited  1-Jan-2025 17:41 by PA")
                                                              (* ; "Edited 28-Dec-2024 19:00 by PA")
 
          (* Checks RAW.QUERY and returns a cons of lowercase strings
-         (user . host) if it is a valid Finger query #.(SEDIT::MAKE-BROKEN-ATOM ",") NIL 
-         otherwise. User is NIL if the username is missing from RAW.QUERY.
+         (user . host) if it is a valid Finger query, NIL otherwise.
+         User is NIL if the username is missing from RAW.QUERY.
          Assumes RAW.QUERY has no leading or trailing whitespace.)
 
     (LET* ((QUERY (L-CASE (MKSTRING RAW.QUERY)))
@@ -210,7 +211,7 @@
                 QUERY NIL T])
 )
 (DECLARE%: DONTCOPY
-  (FILEMAP (NIL (807 11706 (BEGIN.FINGER.OUTPUT 817 . 2221) (CREATE.FINGER.STREAM 2223 . 4134) (
-END.FINGER.OUTPUT 4136 . 5129) (HANDLE.FINGER.MENU 5131 . 7540) (PARSE.FINGER.QUERY 7542 . 9066) (
-PINKIE 9068 . 10494) (QUERY.FINGER.SERVER 10496 . 11217) (VALID.FINGER.CHARS.P 11219 . 11704)))))
+  (FILEMAP (NIL (805 11780 (BEGIN.FINGER.OUTPUT 815 . 2219) (CREATE.FINGER.STREAM 2221 . 4132) (
+END.FINGER.OUTPUT 4134 . 5127) (HANDLE.FINGER.MENU 5129 . 7538) (PARSE.FINGER.QUERY 7540 . 9140) (
+PINKIE 9142 . 10568) (QUERY.FINGER.SERVER 10570 . 11291) (VALID.FINGER.CHARS.P 11293 . 11778)))))
 STOP
